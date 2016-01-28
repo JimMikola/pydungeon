@@ -1,0 +1,29 @@
+# Tile file
+$ castle.png
+
+# Background fill source (x,y,w,h)
+F 32,1152,32,32
+
+# Tile definion (row col wall)
+# 1, 9-11 is left edge brick
+# 0, 5-8, 13-14 is center edge brick
+# 2-4,12 is right edge brick
+!  0 1 1
+! 39 11 0
+! 39 14 0
+! 39 13 0
+! 40 0 0
+!  4 11 0
+!  4 15 0
+!  5  2 0
+
+# Grid and Map Size (tile w, tile h, rows, columns)
+@ 32,32,6,7
+
+# Grid definition
+: 0 0 0 0 0 0 0
+: 0 1 2 3 4 5 0
+: 0 1 2 3 4 6 0
+: 0 1 2 3 4 6 0
+: 0 1 2 3 4 7 0
+: 0 0 0 0 0 0 0

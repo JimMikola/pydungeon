@@ -1,29 +1,57 @@
 # Tile file
+# DATA: file name
 $ castle.png
 
-# Background fill source (x,y,w,h)
+# Background fill source (one line only)
+# DATA: x, y, w, h (region from tile file)
 F 32,1152,32,32
 
+# Grid and Map Size (one entry only)
+# DATA: tile pixel width, tile pixel height, map rows, map columns
+@ 32,32,6,10
+
+# Background tokens (drawn on map behind player)
+# NOTE: Keep lines with same file grouped together
+# DATA: file, x, y, w, h, dest x, dest y
+B decor.png,3,13,26,34,192,64
+B decor.png,3,13,26,34,96,64
+B accents.png,3,6,26,57,147,70
+
+# Animating tokens (drawn every frame behind player)
+# NOTE: Keep lines with same file grouped together
+# DATA: file, frame pixel width, map x, map y
+A torch.png,7,202,54 
+A torch.png,7,106,54 
+
+# Foreground tokens (drawn in front of player)
+# NOTE: Keep lines with same file grouped together
+# DATA: file, x, y, w, h, dest x, dest y
+
 # Tile definion (row col wall)
+# NOTE: order is tile index (starting with zero)
+# DATA: row, col, wall
+# row = tile row (pixel row = tile row * tile height)
+# col = tile col (pixel col = tile col * tile width)
+# wall = 1 if tile cannot be moved through
+#
+# for castle.png:
 # 1, 9-11 is left edge brick
 # 0, 5-8, 13-14 is center edge brick
 # 2-4,12 is right edge brick
-!  0 1 1
+!  0  1 1
 ! 39 11 0
 ! 39 14 0
 ! 39 13 0
-! 40 0 0
+! 40  0 0
 !  4 11 0
 !  4 15 0
 !  5  2 0
 
-# Grid and Map Size (tile w, tile h, rows, columns)
-@ 32,32,6,7
-
 # Grid definition
-: 0 0 0 0 0 0 0
-: 0 1 2 3 4 5 0
-: 0 1 2 3 4 6 0
-: 0 1 2 3 4 6 0
-: 0 1 2 3 4 7 0
-: 0 0 0 0 0 0 0
+# DATA: tile indexes for columns in a row
+: 0 0 0 0 0 0 0 0 0 0
+: 0 5 1 2 1 3 1 4 5 0
+: 0 6 1 2 1 3 1 4 6 0
+: 0 6 1 2 1 3 1 4 6 0
+: 0 7 1 2 1 3 1 4 7 0
+: 0 0 0 0 0 0 0 0 0 0

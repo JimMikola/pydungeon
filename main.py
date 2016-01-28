@@ -36,7 +36,7 @@ def main(args):
     pygame.init()
 
     clock = pygame.time.Clock()
-    size = width, height = 320, 240
+    size = width, height = 640, 480
     black = 0, 0, 0
 
     screen = pygame.display.set_mode((size), pygame.DOUBLEBUF)
@@ -45,20 +45,18 @@ def main(args):
     
     # load a tile map
     mainmap = tilemap.CreateMap("level1.txt")
-    maprect = mainmap.get_rect()
-    screen.blit(mainmap, maprect)
+    mainmap.draw(screen)
     pygame.display.flip()
     
     while 1:
         dx = 0
         dy = 0
         for event in pygame.event.get():
-            if hasattr(event, 'key'):
+            if hasattr(event, 'key') and event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_r:
                     # reload map
                     mainmap = tilemap.CreateMap("level1.txt")
-                    maprect = mainmap.get_rect()
-                    screen.blit(mainmap, maprect)
+                    mainmap.draw(screen)
                     pygame.display.flip()
                 if event.key == pygame.K_RIGHT:
                     dx -= 1
@@ -76,11 +74,11 @@ def main(args):
 				sys.exit()
 
         if dx != 0 or dy != 0:
-            maprect = maprect.move(dx,dy)
-            screen.fill(black)
-            screen.blit(mainmap, maprect)
-            pygame.display.flip()
+            mainmap.scroll(dx,dy)
 
+        screen.fill(black)
+        mainmap.draw(screen)
+        pygame.display.flip()
         clock.tick(30)
     return 0
 

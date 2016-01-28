@@ -29,40 +29,73 @@ import collections
 import pygame
 
 TileDef = collections.namedtuple('TileDef', ['row', 'col', 'wall'])
+TokenDef = collections.namedtuple('TokenDef', ['surf', 'width', 'height', 'x', 'y', 'frame'])
 
 class CreateMap(pygame.Surface):
-     
+
+    def scroll(self, dx, dy):
+		self.x += dx * self.tileWidth
+		self.y += dy * self.tileHeight
+
+    def draw(self, screen):
+		# Map
+		rect = self.get_rect().move(self.x, self.y)
+		screen.blit(self, rect)
+		# Tokens
+		for token in self.tokendef:
+			x = (self.drawstep * token.frame) % token.width
+			rect = pygame.Rect(x, 0, token.frame, token.height)
+			screen.blit(token.surf, ((token.x + self.x), (token.y + self.y)), rect)
+		# Finish
+		self.drawstep += 1 
+
     def __init__(self, name):
+		self.x = 0
+		self.y = 0
+		self.drawstep = 0
 		# Load tilemap defintion file
-		fullname = os.path.join('maps', name)
+		temp = os.path.join('maps', name)
 		try:
-			file = open(fullname, 'r')
+			file = open(temp, 'r')
 		except pygame.error, message:
 			print 'Cannot load tilemap:', name
 			raise SystemExit, message
 		self.tiledef = []
-		defcnt = 0
+		self.tokendef = []
+		decor = []
 		gridcnt = 0
-		dofill = 0
+		fillrect = pygame.Rect(0,0,0,0)
+		lastsrc = ""
 		for line in file:
 			if len(line) > 1:
 				if line[0] == '$':
 					tilefile = os.path.join('tiles', line[1:].strip())
 				if line[0] == '!':
-					tiledat = line[1:].strip().split();
-					self.tiledef.append(TileDef._make([int(i) for i in tiledat]))
-					print 'TILE', defcnt, ': ', self.tiledef[defcnt]
-					defcnt += 1
+					temp = line[1:].strip().split();
+					self.tiledef.append(TileDef._make([int(i) for i in temp]))
+					temp = len(self.tiledef) - 1
+					print 'TILE', temp, ': ', self.tiledef[temp]
 				elif line[0] == 'F':
-					fillsrc = pygame.Rect([int(i) for i in line[1:].strip().split(',')])
-					dofill = 1
-					print 'FILL: ', fillsrc
+					fillrect = pygame.Rect([int(i) for i in line[1:].strip().split(',')])
+					print 'FILL: ', fillrect
+				elif line[0] == 'A':
+					temp = line[1:].strip().split(',');
+					newsrc = os.path.join('tiles', temp[0].strip())
+					if newsrc != lastsrc:
+						src = pygame.image.load(newsrc).convert_alpha()
+						lastsrc = newsrc
+						rect = src.get_rect()
+					self.tokendef.append(TokenDef._make([src,rect.width,rect.height,int(temp[2]),int(temp[3]),int(temp[1])]))
+					temp = len(self.tokendef) - 1
+					print 'TOKEN', temp, ': ', self.tokendef[temp]
+				elif line[0] == 'B':
+					decor.append(line[1:].strip())
 				elif line[0] == '@':
-					size = line[1:].strip().split(',')
-					self.tileWidth = int(size[0])
-					self.tileHeight = int(size[1])
-					self.gridHeight = int(size[2])
-					self.gridWidth = int(size[3])
+					temp = line[1:].strip().split(',')
+					self.tileWidth = int(temp[0])
+					self.tileHeight = int(temp[1])
+					self.gridHeight = int(temp[2])
+					self.gridWidth = int(temp[3])
 					self.griddef = [[0 for x in range(self.gridWidth)] for x in range(self.gridHeight)]
 				elif line[0] == ':':
 					c = 0
@@ -74,24 +107,34 @@ class CreateMap(pygame.Surface):
 		file.close()
 		
 		# Load tile surfaces (temporary)
+		print 'FILE: ', tilefile
 		src = pygame.image.load(tilefile).convert_alpha()
 			
 		# Create surface to hold rendered map
-		pygame.Surface.__init__(self, size=(self.tileWidth * self.gridWidth, self.tileHeight * self.gridHeight))
+		pygame.Surface.__init__(self, (self.tileWidth * self.gridWidth, self.tileHeight * self.gridHeight))
 
 		# Fill surface with background
-		if dofill != 0:
-			rows = (self.tileHeight * self.gridHeight) / fillsrc.height
-			cols = (self.tileWidth * self.gridWidth) / fillsrc.width
+		if fillrect.width > 0 and fillrect.height > 0:
+			rows = (self.tileHeight * self.gridHeight) / fillrect.height
+			cols = (self.tileWidth * self.gridWidth) / fillrect.width
 			for r in range(rows):
 				for c in range(cols):
-					self.blit(src, (c * fillsrc.width, r * fillsrc.height), fillsrc)
-			
+					self.blit(src, (c * fillrect.width, r * fillrect.height), fillrect)
+		
 		# Draw tiles into surface
 		for r in range(self.gridHeight):
 			for c in range(self.gridWidth):
 				t = self.griddef[r][c]
 				rect = pygame.Rect(self.tiledef[t].col * self.tileWidth, self.tiledef[t].row * self.tileHeight, self.tileWidth, self.tileHeight)
 				self.blit(src, (c * self.tileWidth, r * self.tileHeight), rect)
-				
-		
+        
+		# Draw decor
+		lastsrc = ""
+		for d in decor:
+			items = d.split(',')
+			newsrc = os.path.join('tiles', items[0].strip())
+			if newsrc != lastsrc:
+				src = pygame.image.load(newsrc).convert_alpha()
+				lastsrc = newsrc
+			rect = pygame.Rect(int(items[1]), int(items[2]), int(items[3]), int(items[4]))
+			self.blit(src, (int(items[5]), int(items[6])), rect)

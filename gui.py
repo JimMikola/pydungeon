@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-#  character.py
+#  gui.py
 #  
 #  Copyright 2016 Jim Mikola
 #  
@@ -22,6 +22,23 @@
 #  
 #  
 
+# Standard Modules
 import os
 import sys
+
+# 3rd Party Modules
 import pygame
+
+# Local Modules
+import main
+import game
+
+# GUI class
+class NewGUI():
+	def __init__(self):
+		pass
+
+# If starting in this module, jump to main
+if __name__ == '__main__':
+	sys.exit(main.main(sys.argv))
+	pygame.quit()

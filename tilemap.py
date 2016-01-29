@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-#  character.py
+#  tilemap.py
 #  
 #  Copyright 2016 Jim Mikola
 #  
@@ -22,30 +22,36 @@
 #  
 #  
 
+# Standard Modules
 import os
 import sys
 import collections
 
+# 3rd Party Modules
 import pygame
+
+# Local Modules
+import main
+import game
 
 TileDef = collections.namedtuple('TileDef', ['row', 'col', 'wall'])
 TokenDef = collections.namedtuple('TokenDef', ['surf', 'width', 'height', 'x', 'y', 'frame'])
 
-class CreateMap(pygame.Surface):
+class NewMap(pygame.Surface):
 
     def scroll(self, dx, dy):
 		self.x += dx * self.tileWidth
 		self.y += dy * self.tileHeight
 
-    def draw(self, screen):
+    def draw(self):
 		# Map
 		rect = self.get_rect().move(self.x, self.y)
-		screen.blit(self, rect)
+		game.screen.blit(self, rect)
 		# Tokens
 		for token in self.tokendef:
 			x = (self.drawstep * token.frame) % token.width
 			rect = pygame.Rect(x, 0, token.frame, token.height)
-			screen.blit(token.surf, ((token.x + self.x), (token.y + self.y)), rect)
+			game.screen.blit(token.surf, ((token.x + self.x), (token.y + self.y)), rect)
 		# Finish
 		self.drawstep += 1 
 
@@ -133,3 +139,8 @@ class CreateMap(pygame.Surface):
 				lastsrc = newsrc
 			rect = pygame.Rect(int(items[1]), int(items[2]), int(items[3]), int(items[4]))
 			self.blit(src, (int(items[5]), int(items[6])), rect)
+
+# If starting in this module, jump to main
+if __name__ == '__main__':
+	sys.exit(main.main(sys.argv))
+	pygame.quit()

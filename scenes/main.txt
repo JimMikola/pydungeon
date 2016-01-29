@@ -1,0 +1,15 @@
+# Tile map for this level
+# DATA: tile map file name
+T level1.txt
+
+# Start location
+# DATA: x, y in tile coords
+S 0,0
+
+# Exit definitions
+# DATA: x, y, new scene file name
+E 0,0,level2.txt
+
+# Monsters
+# DATA: x, y, monster file name
+M 0,0,orc.txt

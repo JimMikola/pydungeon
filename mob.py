@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-#  main.py
+#  mob.py
 #  
 #  Copyright 2016 Jim Mikola
 #  
@@ -22,48 +22,33 @@
 #  
 #  
 
-# Standard Libs
+# Standard Modules
 import os
 import sys
 
 # 3rd Party Modules
 import pygame
-if not pygame.font: print 'Warning, fonts disabled'
-if not pygame.mixer: print 'Warning, sound disabled'
 
 # Local Modules
+import main
 import game
-import scene
 
-def main(args):
-	# Initialize display, input, sound, and initialize shared data
-	pygame.init()
-	game.clock = pygame.time.Clock()
-	game.screen = pygame.display.set_mode((game.SCREEN_WIDTH(), game.SCREEN_HEIGHT()), pygame.DOUBLEBUF)
-	pygame.display.set_caption('pydungeon')
-	pygame.key.set_repeat(300, 10)
+# base class for all mobiles in the game
+class Mob():
 	
-	# we always start with the main scene
-	game.scene = scene.NewScene("main.txt")
-	
-	# game loop
-	while game.run == 1:
-		# Execute the scene
-		newscene = game.scene.execute()
-		# Load a new scene if required
-		if newscene is not None:
-			game.scene = scene.NewScene(newscene)
-		# Draw the scene
-		game.screen.fill(game.FILL_COLOR())
-		game.scene.draw()
-		pygame.display.flip()
-		# Time base
-		game.clock.tick(30)
-			
-	# exit
-	return 0
+    def draw(self, screen):
+		self.drawstep += 1
 
+    def move(self, tilemap, dx, dy):
+		newx = self.x + dx
+		newy = self.y + dy
+		
+    def __init__(self, name, x, y):
+		self.x = x
+		self.y = y
+		self.drawstep = 0
+
+# If starting in this module, jump to main
 if __name__ == '__main__':
-	sys.exit(main(sys.argv))
+	sys.exit(main.main(sys.argv))
 	pygame.quit()
-

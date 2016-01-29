@@ -74,10 +74,8 @@ class CreateMap(pygame.Surface):
 					temp = line[1:].strip().split();
 					self.tiledef.append(TileDef._make([int(i) for i in temp]))
 					temp = len(self.tiledef) - 1
-					print 'TILE', temp, ': ', self.tiledef[temp]
 				elif line[0] == 'F':
 					fillrect = pygame.Rect([int(i) for i in line[1:].strip().split(',')])
-					print 'FILL: ', fillrect
 				elif line[0] == 'A':
 					temp = line[1:].strip().split(',');
 					newsrc = os.path.join('tiles', temp[0].strip())
@@ -87,27 +85,24 @@ class CreateMap(pygame.Surface):
 						rect = src.get_rect()
 					self.tokendef.append(TokenDef._make([src,rect.width,rect.height,int(temp[2]),int(temp[3]),int(temp[1])]))
 					temp = len(self.tokendef) - 1
-					print 'TOKEN', temp, ': ', self.tokendef[temp]
 				elif line[0] == 'B':
 					decor.append(line[1:].strip())
 				elif line[0] == '@':
 					temp = line[1:].strip().split(',')
-					self.tileWidth = int(temp[0])
-					self.tileHeight = int(temp[1])
-					self.gridHeight = int(temp[2])
-					self.gridWidth = int(temp[3])
+					self.tileWidth = int(temp[0].strip())
+					self.tileHeight = int(temp[1].strip())
+					self.gridHeight = int(temp[2].strip())
+					self.gridWidth = int(temp[3].strip())
 					self.griddef = [[0 for x in range(self.gridWidth)] for x in range(self.gridHeight)]
 				elif line[0] == ':':
 					c = 0
-					for tile in line[1:].strip().split(' '):
-						self.griddef[gridcnt][c] = int(tile)
+					for tile in line[1:].strip().split():
+						self.griddef[gridcnt][c] = int(tile.strip())
 						c += 1
-					print 'GRID: ', self.griddef[gridcnt]
 					gridcnt += 1
 		file.close()
 		
 		# Load tile surfaces (temporary)
-		print 'FILE: ', tilefile
 		src = pygame.image.load(tilefile).convert_alpha()
 			
 		# Create surface to hold rendered map

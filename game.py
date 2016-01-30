@@ -26,8 +26,12 @@
 import os
 import sys
 
+# 3rd Party Modules
+import pygame
+
 # Local Modules
 import main
+import hero
 
 # Constants
 def SCREEN_WIDTH():
@@ -38,7 +42,10 @@ def SCREEN_HEIGHT():
 
 def FILL_COLOR():
 	return (0,0,0)
-			
+
+def GRAVITY():
+	return 1
+				
 # pygame Surface assigned to the display
 screen = None
 
@@ -49,17 +56,43 @@ clock = None
 scene = None
 
 # GUI overlay for the screen
-gui = None
+overlay = None
 
 # current score
 score = 0
 
-# current hero list (persists from screen to screen)
-heroes = []
+# current player (persists from screen to screen)
+player = None
+
+# draw step
+drawstep = 0
 
 # quit flag
 run = 1
 
+# Load Game API
+def Load(name):
+	# Identify globals from 'game.py' that we are using
+	global player
+	# Load tilemap defintion file
+	temp = os.path.join('saves', name)
+	try:
+		file = open(temp, 'r')
+	except pygame.error, message:
+		print 'Cannot load game:', name
+		raise SystemExit, message
+	for line in file:
+		if len(line) > 1:
+			if line[0] == 'H':
+				# load hero type
+				player = hero.NewHero(line[1:].strip())
+	file.close()
+
+# Save Game API
+def Save(name):
+	# Identify globals from 'game.py' that we are using
+	global player
+	
 # If starting in this module, jump to main
 if __name__ == '__main__':
 	sys.exit(main.main(sys.argv))

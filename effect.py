@@ -37,6 +37,15 @@ import mob
 # Effect class
 class NewEffect(mob.Mob):
 
+	def move(self, command):
+		mob.Mob.move(self, command)
+		
+	def draw(self):
+		mob.Mob.draw(self)
+		
+	def update(self):
+		mob.Mob.update(self)
+		
 	def __init__(self, name, x, y):
 		mob.Mob.__init__(self, name, x, y)
 

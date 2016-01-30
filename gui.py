@@ -34,10 +34,16 @@ import main
 import game
 
 # GUI class
-class NewGUI():
+class NewUI():
 	def __init__(self):
 		pass
 
+	def update(self):
+		pass
+		
+	def draw(self):
+		pass
+		
 # If starting in this module, jump to main
 if __name__ == '__main__':
 	sys.exit(main.main(sys.argv))

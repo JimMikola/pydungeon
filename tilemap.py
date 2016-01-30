@@ -34,31 +34,116 @@ import pygame
 import main
 import game
 
+
+# Named types
 TileDef = collections.namedtuple('TileDef', ['row', 'col', 'wall'])
 TokenDef = collections.namedtuple('TokenDef', ['surf', 'width', 'height', 'x', 'y', 'frame'])
 
+# Wall types
+WALL_NONE, WALL_BLOCK, WALL_CLIMB = range(3)
+
+
 class NewMap(pygame.Surface):
 
-    def scroll(self, dx, dy):
-		self.x += dx * self.tileWidth
-		self.y += dy * self.tileHeight
-
-    def draw(self):
+	def scroll(self, dx, dy):
+		self.x += dx
+		self.y += dy
+		
+	def update(self):
+		# bound offset by screen - order forces top left corner
+		# to be dominant for maps that are smaller than the 
+		# screen
+		width, height = self.drawsize()
+		if ((self.x + width) < game.SCREEN_WIDTH()):
+			self.x = game.SCREEN_WIDTH() - width
+		if (self.x > 0):
+			self.x = 0
+		if ((self.y + height) < game.SCREEN_HEIGHT()):
+			self.y = game.SCREEN_HEIGHT() - height
+		if (self.y > 0):
+			self.y = 0
+		
+	def draw(self):
 		# Map
 		rect = self.get_rect().move(self.x, self.y)
 		game.screen.blit(self, rect)
 		# Tokens
 		for token in self.tokendef:
-			x = (self.drawstep * token.frame) % token.width
+			x = (game.drawstep * token.frame) % token.width
 			rect = pygame.Rect(x, 0, token.frame, token.height)
 			game.screen.blit(token.surf, ((token.x + self.x), (token.y + self.y)), rect)
-		# Finish
-		self.drawstep += 1 
 
-    def __init__(self, name):
+	def drawoffset(self):
+		return (self.x, self.y)
+
+	def drawsize(self):
+		return (self.tileWidth * self.gridWidth, self.tileHeight * self.gridHeight)
+		
+	def tilesize(self):
+		return (self.tileWidth, self.tileHeight)
+		
+	def gridsize(self):
+		return (self.gridWidth, self.gridHeight)
+
+	def collision(self, rect):
+		# Start with zero collision
+		dx, dy = 0, 0
+		# perform edge checks, protect for excessive velocity
+		# Check left
+		col = rect.left / self.tileWidth
+		row = rect.centery / self.tileHeight
+		if col < 0:
+			col = 0
+		if self.tiledef[self.griddef[row][col]].wall == WALL_BLOCK:
+			# collision, move right
+			dx += ((col + 1) * self.tileWidth) - rect.left
+		# Check right
+		col = (rect.right - 1) / self.tileWidth
+		if col >= self.gridWidth:
+			col = self.gridWidth - 1
+		if self.tiledef[self.griddef[row][col]].wall == WALL_BLOCK:
+			# collision, move left
+			dx -= rect.right - (col * self.tileWidth)
+		# Check bottom
+		col = rect.centerx / self.tileWidth
+		row = (rect.bottom - 1) / self.tileHeight
+		if row >= self.gridHeight:
+			row = self.gridHeight - 1
+		if self.tiledef[self.griddef[row][col]].wall == WALL_BLOCK:
+			# collision, move up
+			dy -= rect.bottom - (row * self.tileHeight)
+		# Check top
+		row = rect.top / self.tileHeight
+		if row < 0:
+			row = 0
+		if self.tiledef[self.griddef[row][col]].wall == WALL_BLOCK:
+			# collision, move down
+			dy += ((row + 1) * self.tileHeight) - rect.top
+		# return collision pixel values
+		return (dx, dy)
+		
+	def climb(self, rect):
+		# rect is in map pixel coords
+		col = rect.centerx / self.tileWidth
+		# Check upward climb (feet must be on climbing tile)
+		row = (rect.bottom - 1) / self.tileHeight
+		tile = self.griddef[row][col]
+		if self.tiledef[tile].wall == WALL_CLIMB:
+			climbup = 1
+		else:
+			climbup = 0
+		# Check downward climb (one pixel below feet must be on climbing tile)
+		row = rect.bottom / self.tileHeight
+		tile = self.griddef[row][col]
+		if self.tiledef[tile].wall == WALL_CLIMB:
+			climbdn = 1
+		else:
+			climbdn = 0
+		return (climbup, climbdn)
+		
+	def __init__(self, name):
 		self.x = 0
 		self.y = 0
-		self.drawstep = 0
 		# Load tilemap defintion file
 		temp = os.path.join('maps', name)
 		try:
@@ -128,7 +213,7 @@ class NewMap(pygame.Surface):
 				t = self.griddef[r][c]
 				rect = pygame.Rect(self.tiledef[t].col * self.tileWidth, self.tiledef[t].row * self.tileHeight, self.tileWidth, self.tileHeight)
 				self.blit(src, (c * self.tileWidth, r * self.tileHeight), rect)
-        
+		
 		# Draw decor
 		lastsrc = ""
 		for d in decor:

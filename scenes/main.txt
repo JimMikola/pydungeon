@@ -2,13 +2,17 @@
 # DATA: tile map file name
 T level1.txt
 
+# Music for this scene
+# DATA: music file name
+M gloomy.ogg
+
 # Start location
 # DATA: x, y in tile coords
-S 0,0
+S 2,13
 
 # Exit definitions
 # DATA: x, y, new scene file name
-E 0,0,level2.txt
+E 26,4,part2.txt
 
 # Monsters
 # DATA: x, y, monster file name

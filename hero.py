@@ -36,9 +36,51 @@ import mob
 
 # Hero class
 class NewHero(mob.Mob):
+		
+	def update(self):
+		dx = self.x
+		dy = self.y
+		mob.Mob.update(self)
+		dx -= self.x
+		dy -= self.y
+		# if hero is not in center of screen then don't scroll
+		herox, heroy = game.player.drawpos()
+		if (dx > 0):
+			# moving left
+			if herox > (game.SCREEN_WIDTH() / 2):
+				dx = 0
+		elif (dx < 0):
+			# moving right
+			if herox < (game.SCREEN_WIDTH() / 2):
+				dx = 0
+		if (dy > 0):
+			# moving up
+			if heroy > (game.SCREEN_HEIGHT() / 2):
+				dy = 0
+		elif (dy < 0):
+			# moving down
+			if heroy < (game.SCREEN_HEIGHT() / 2):
+				dy = 0
+		game.scene.tilemap().scroll(dx, dy)
 
-	def __init__(self, name, x, y):
-		mob.Mob.__init__(self, name, x, y)
+	def setStartPos(self,x,y):
+		# x and y are in pixels
+		self.x = x
+		self.y = y
+		
+	def __init__(self, name):
+		# Calculate file path
+		temp = os.path.join('heroes', name)
+		# Allow base class to load file first
+		mob.Mob.__init__(self, temp, 0, 0)
+		# Reprocess file for class specific data
+		try:
+			file = open(temp, 'r')
+		except pygame.error, message:
+			raise SystemExit, message
+		for line in file:
+			pass
+		file.close()
 
 # If starting in this module, jump to main
 if __name__ == '__main__':

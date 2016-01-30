@@ -34,6 +34,7 @@ if not pygame.mixer: print 'Warning, sound disabled'
 # Local Modules
 import game
 import scene
+import gui
 
 def main(args):
 	# Initialize display, input, sound, and initialize shared data
@@ -41,7 +42,12 @@ def main(args):
 	game.clock = pygame.time.Clock()
 	game.screen = pygame.display.set_mode((game.SCREEN_WIDTH(), game.SCREEN_HEIGHT()), pygame.DOUBLEBUF)
 	pygame.display.set_caption('pydungeon')
-	pygame.key.set_repeat(300, 10)
+
+	# Create GUI
+	game.overlay = gui.NewUI()
+	
+	# TODO:  Welcome / Load Game Screen
+	game.Load("default.txt")
 	
 	# we always start with the main scene
 	game.scene = scene.NewScene("main.txt")
@@ -50,13 +56,21 @@ def main(args):
 	while game.run == 1:
 		# Execute the scene
 		newscene = game.scene.execute()
+		
 		# Load a new scene if required
 		if newscene is not None:
 			game.scene = scene.NewScene(newscene)
-		# Draw the scene
+			
+		# Update the GUI
+		game.overlay.update()
+
+		# Draw the frame
 		game.screen.fill(game.FILL_COLOR())
 		game.scene.draw()
+		game.overlay.draw()
 		pygame.display.flip()
+		game.drawstep += 1
+
 		# Time base
 		game.clock.tick(30)
 			

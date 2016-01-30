@@ -1,0 +1,19 @@
+# Hero definition file
+# DATA texture file, frame width, frame height
+T cube.png,32,32
+
+# Jump Max
+# DATA: maximum pixel height for a jump
+J 10
+
+# Climb Flag
+# DATA: 1 = can climb up and down ladders, 0 = no
+C 1
+
+# Fall Flag
+# DATA: 1 = can walk off ledges and fall, 0 = no
+F 1
+
+# Move Step
+# DATA: pixels per move step
+M 8

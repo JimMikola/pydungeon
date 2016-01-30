@@ -1,0 +1,5 @@
+# Save Game file
+
+# Hero type
+H wizard.txt
+

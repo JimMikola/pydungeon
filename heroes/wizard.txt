@@ -1,6 +1,6 @@
 # Hero definition file
 # DATA texture file, frame width, frame height
-T cube.png,32,32
+T mage_m.png,32,32
 
 # Jump Max
 # DATA: maximum pixel height for a jump

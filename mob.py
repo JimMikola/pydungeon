@@ -39,6 +39,9 @@ MOVE_NONE, MOVE_LEFT, MOVE_RIGHT, MOVE_UP, MOVE_DOWN, MOVE_JUMP = range(6)
 # Enumeration of attack commands
 ATTACK_NONE, ATTACK_PRIMARY, ATTACK_SECONDARY, ATTACK_AUX1, ATTACK_AUX2 = range(5)
 
+# Enumeration of frame rows
+FRAME_UP, FRAME_RIGHT, FRAME_DOWN, FRAME_LEFT, FRAME_ATTACK = range(5)
+
 # base class for all mobiles in the game
 class Mob():
     	
@@ -60,12 +63,32 @@ class Mob():
 		dx, dy = 0, 0
 		if self.move_cmd == MOVE_RIGHT:
 			dx += self.move_step
+			if FRAME_RIGHT == self.framey:
+				self.framex += self.framew
+			else:
+				self.framey = FRAME_RIGHT
+				self.framex = 0
 		elif self.move_cmd == MOVE_LEFT:
 			dx -= self.move_step
+			if FRAME_LEFT == self.framey:
+				self.framex += self.framew
+			else:
+				self.framey = FRAME_LEFT
+				self.framex = 0
 		elif self.move_cmd == MOVE_UP and 0 != climbup:
 			dy -= self.move_step
+			if FRAME_UP == self.framey:
+				self.framex += self.framew
+			else:
+				self.framey = FRAME_UP
+				self.framex = 0
 		elif self.move_cmd == MOVE_DOWN and 0 != climbdn:
 			dy += self.move_step
+			if FRAME_DOWN == self.framey:
+				self.framex += self.framew
+			else:
+				self.framey = FRAME_DOWN
+				self.framex = 0
 		if self.jump_cmd == MOVE_JUMP and 0 == self.velocity:
 			self.velocity -= self.jumpvel
 		# gravity (if not climbing)
@@ -95,8 +118,12 @@ class Mob():
 		return (screenx + self.x, screeny + self.y)
 
 	def draw(self):
-		rect = pygame.Rect(self.framex, self.framey, self.framew, self.frameh)
-		screenx, screeny = game.scene.tilemap().drawoffset()
+		if self.framex >= self.surf.get_rect().width:
+			self.framex = 0
+		elif self.velocity != 0:
+			self.framex = 0
+		y = self.framey * self.frameh
+		rect = pygame.Rect(self.framex, y, self.framew, self.frameh)
 		game.screen.blit(self.surf, self.drawpos(), rect)
 
 	def __init__(self, name, x, y):
@@ -109,7 +136,7 @@ class Mob():
 		self.can_fall = 0
 		self.can_climb = 0
 		self.framex = 0
-		self.framey = 0
+		self.framey = FRAME_DOWN
 		self.move_step = 0
 		self.velocity = 0
 		try:
